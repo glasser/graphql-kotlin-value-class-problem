@@ -1,6 +1,6 @@
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
-    id("org.jetbrains.kotlin.jvm") version "1.8.10"
+    id("org.jetbrains.kotlin.jvm") version "1.8.21"
 
     // Apply the application plugin to add support for building a CLI application in Java.
     application
@@ -16,8 +16,9 @@ dependencyLocking {
 }
 
 dependencies {
-    implementation("com.expediagroup", "graphql-kotlin-schema-generator", "7.0.0-alpha.5")
-    implementation("com.graphql-java", "graphql-java", "20.2")
+    implementation("org.jetbrains.kotlin", "kotlin-reflect", "1.8.21")
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.7.1")
+
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

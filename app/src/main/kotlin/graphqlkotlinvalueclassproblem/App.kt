@@ -1,35 +1,27 @@
 package graphqlkotlinvalueclassproblem
 
-import com.expediagroup.graphql.generator.SchemaGeneratorConfig
-import com.expediagroup.graphql.generator.TopLevelObject
-import com.expediagroup.graphql.generator.scalars.ID
-import com.expediagroup.graphql.generator.scalars.IDValueUnboxer
-import com.expediagroup.graphql.generator.toSchema
-import graphql.GraphQL
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.yield
+import kotlin.reflect.KFunction
+import kotlin.reflect.full.callSuspendBy
 
-fun main(args: Array<String>) {
-    val schema = toSchema(
-        config = SchemaGeneratorConfig(
-            supportedPackages = listOf(""),
-        ),
-        queries = listOf(TopLevelObject(Query())),
-    )
-
-    val graphql = GraphQL.newGraphQL(schema).let { builder ->
-        builder.valueUnboxer(IDValueUnboxer())
-        builder.build()
-    }
-
-    println(graphql.execute("{ id string dispatchedString }"))
-    println(graphql.execute("{ dispatchedId }"))
+fun main(args: Array<String>): Unit = runBlocking {
+    val fnGood: KFunction<*> = ::suspendAndReturnNormalString
+    println(fnGood.callSuspendBy(emptyMap()))
+    val fnBad: KFunction<*> = ::suspendAndReturnValueString
+    println(fnBad.callSuspendBy(emptyMap()))
 }
 
-class Query {
-    suspend fun string(): String = "x"
-    suspend fun dispatchedString(): String = withContext(Dispatchers.IO) { "x" }
-    suspend fun id(): ID = ID("x")
-    suspend fun dispatchedId(): ID = withContext(Dispatchers.IO) { ID("x") }
+@JvmInline
+value class ValueString(val value: String) {
+    override fun toString(): String = value
 }
 
+suspend fun suspendAndReturnValueString(): ValueString {
+    yield()
+    return ValueString("x")
+}
+suspend fun suspendAndReturnNormalString(): String {
+    yield()
+    return "x"
+}
